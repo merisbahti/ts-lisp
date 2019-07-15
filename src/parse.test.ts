@@ -1,5 +1,5 @@
-import { parse } from './parse'
-import { Atom, List, Num } from './expr'
+import { parse } from './parse'
+import { Atom, List, Num } from './expr'
 import { pOK } from './parserCombinator'
 
 test('parse token', () => {
@@ -9,9 +9,9 @@ test('parse token', () => {
       List(
         Num(1),
         Num(2),
-        Num(3),
+        Num(3)
       ),
-      ""
+      ''
     )
   )
 })
@@ -23,13 +23,13 @@ test('parse token', () => {
       List(
         List(
           Num(1),
-          Num(2),
+          Num(2)
         ),
         List(
           Num(3),
           Num(4)
         )),
-      ""
+      ''
     )
   )
 })
@@ -39,10 +39,10 @@ test('parse token', () => {
   expect(parse(complexExpression)).toStrictEqual(
     pOK(
       List(
-          Atom('a'),
-          Atom('b'),
-        ),
-      ""
+        Atom('a'),
+        Atom('b')
+      ),
+      ''
     )
   )
 })
@@ -60,19 +60,18 @@ test('parse token', () => {
         List(
           Atom('add'),
           Num(1),
-          Num(2),
+          Num(2)
         ),
         List(
           Atom('add'),
           Num(3),
-          Num(4),
-        ),
+          Num(4)
+        )
       ),
-      ""
+      ''
     )
   )
 })
-
 
 test('parse complex expression', () => {
   const complexExpression = `(map (lambda (x) (add 1 2)) (quote (1 2 3 4 5)))`
@@ -83,7 +82,7 @@ test('parse complex expression', () => {
         List(
           Atom('lambda'),
           List(Atom('x')),
-          List(Atom('add'), Num(1), Num(2)),
+          List(Atom('add'), Num(1), Num(2))
         ),
         List(
           Atom('quote'),
@@ -92,11 +91,11 @@ test('parse complex expression', () => {
             Num(2),
             Num(3),
             Num(4),
-            Num(5),
+            Num(5)
           )
-        ),
+        )
       ),
-      ""
+      ''
     )
   )
 })

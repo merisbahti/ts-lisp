@@ -1,52 +1,52 @@
-import { Parser, lazy, surroundedBy, many, alt, map, token, regexp, pOK, pFail } from './parserCombinator'
+import { Parser, lazy, surroundedBy, many, alt, map, token, regexp, pOK, pFail } from './parserCombinator'
 import { List, Num } from './expr'
 import { Expr } from './types'
 
 test('parse token', () => {
-  expect(token("5")("5")).toStrictEqual(pOK("5", ""))
-  expect(token("123")("123 455")).toStrictEqual(pOK("123", " 455"))
-  expect(token("123")("5")).toStrictEqual(pFail("123", "5"))
+  expect(token('5')('5')).toStrictEqual(pOK('5', ''))
+  expect(token('123')('123 455')).toStrictEqual(pOK('123', ' 455'))
+  expect(token('123')('5')).toStrictEqual(pFail('123', '5'))
 })
 
 test('parse regexp', () => {
-  expect(regexp(/\d/)("5")).toStrictEqual(pOK("5", ""))
-  expect(regexp(/\d+/)("123 455")).toStrictEqual(pOK("123", " 455"))
-  expect(regexp(/\d+/)("p")).toStrictEqual(pFail("/\\d+/", "p"))
+  expect(regexp(/\d/)('5')).toStrictEqual(pOK('5', ''))
+  expect(regexp(/\d+/)('123 455')).toStrictEqual(pOK('123', ' 455'))
+  expect(regexp(/\d+/)('p')).toStrictEqual(pFail('/\\d+/', 'p'))
 })
 
 test('map', () => {
   expect(
-        map(
-          regexp(/\d/),
-          Number)("5")
-  ).toStrictEqual(pOK(5, ""))
+    map(
+      regexp(/\d/),
+      Number)('5')
+  ).toStrictEqual(pOK(5, ''))
 })
 
 test('alt', () => {
   expect(
-        alt(
-          regexp(/\d/),
-          token("hello")
-          )("5")
-  ).toStrictEqual(pOK("5", ""))
+    alt(
+      regexp(/\d/),
+      token('hello')
+    )('5')
+  ).toStrictEqual(pOK('5', ''))
   expect(
-        alt(
-          regexp(/\d/),
-          token("hello")
-          )("hello")
-  ).toStrictEqual(pOK("hello", ""))
+    alt(
+      regexp(/\d/),
+      token('hello')
+    )('hello')
+  ).toStrictEqual(pOK('hello', ''))
 })
 
 test('alt', () => {
   const parser = many(
     alt(
       regexp(/\d/),
-      token("hello")
+      token('hello')
     )
   )
-  expect(parser("5")).toStrictEqual(pOK(["5"], ""))
-  expect(parser("hello")).toStrictEqual(pOK(["hello"], ""))
-  expect(parser("5hello5")).toStrictEqual(pOK(["5", "hello", "5"], ""))
+  expect(parser('5')).toStrictEqual(pOK(['5'], ''))
+  expect(parser('hello')).toStrictEqual(pOK(['hello'], ''))
+  expect(parser('5hello5')).toStrictEqual(pOK(['5', 'hello', '5'], ''))
 })
 test('surroundedBy', () => {
   const ws = regexp(/\s+/)
@@ -56,7 +56,7 @@ test('surroundedBy', () => {
     digit,
     ws
   )
-  expect(parser(" 5 ")).toStrictEqual(pOK("5", ""))
+  expect(parser(' 5 ')).toStrictEqual(pOK('5', ''))
 })
 
 test('list', () => {
@@ -66,13 +66,13 @@ test('list', () => {
     regexp(/\s*/)
   )
   const list = surroundedBy(
-    token("("),
+    token('('),
     many(digit),
-    token(")")
+    token(')')
   )
-  expect(list("(1 2 3)")).toStrictEqual(pOK(["1", "2", "3"], ""))
-  expect(list("(123)")).toStrictEqual(pOK(["123"], ""))
-  expect(list("123")).toStrictEqual(pFail("(", '123'))
+  expect(list('(1 2 3)')).toStrictEqual(pOK(['1', '2', '3'], ''))
+  expect(list('(123)')).toStrictEqual(pOK(['123'], ''))
+  expect(list('123')).toStrictEqual(pFail('(', '123'))
 })
 
 test('nested list', () => {
@@ -81,26 +81,26 @@ test('nested list', () => {
     regexp(/\d+/),
     regexp(/\s*/)
   ), x => Num(Number(x)))
-  let expr: Parser<Expr>;
+  let expr: Parser<Expr>
   const list = lazy(() => {
     if (!expr) throw new Error('Failed :(')
     return map(surroundedBy(
-      token("("),
+      token('('),
       many(
         surroundedBy(
           regexp(/\s*/),
           expr,
-          regexp(/\s*/),
+          regexp(/\s*/)
         )
       ),
-      token(")")
+      token(')')
     ), ls => List(...ls))
   })
   expr = alt(digit, list)
 
-  expect(list("((1))")).toStrictEqual(pOK(List(List(Num(1))), ""))
-  expect(list("((1 2))")).toStrictEqual(pOK(List(List(Num(1), Num(2))), ""))
-  expect(list("((1 2) (3 4))")).toStrictEqual(pOK(List(List(Num(1), Num(2)), List(Num(3), Num(4))), ""))
+  expect(list('((1))')).toStrictEqual(pOK(List(List(Num(1))), ''))
+  expect(list('((1 2))')).toStrictEqual(pOK(List(List(Num(1), Num(2))), ''))
+  expect(list('((1 2) (3 4))')).toStrictEqual(pOK(List(List(Num(1), Num(2)), List(Num(3), Num(4))), ''))
 })
 
 // test('simple atoms', () => {

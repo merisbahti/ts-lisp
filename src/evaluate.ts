@@ -1,5 +1,5 @@
 import * as T from './types'
-import { Result, Val, Err, fmap } from './result'
+import { Result, Val, Err, fmap } from './result'
 import { Env, StdLib, lookUp } from './environment'
 import { pp } from './prettyPrint'
 
@@ -31,4 +31,3 @@ export const evaluate = (e: T.Expr, env: Env = StdLib): Result<T.Expr> => {
       )
   }
 }
-

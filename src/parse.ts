@@ -1,4 +1,4 @@
-import { Parser, lazy, surroundedBy, many, alt, map, token, regexp, pOK, pFail } from './parserCombinator'
+import { Parser, lazy, surroundedBy, many, alt, map, token, regexp } from './parserCombinator'
 import { Atom, List, Num } from './expr'
 import { Expr } from './types'
 
@@ -6,7 +6,7 @@ const ws = regexp(/[\s|\t]*/)
 const trimWhitespace = <A>(parser: Parser<A>) => surroundedBy(
   ws,
   parser,
-  ws,
+  ws
 )
 
 const digit = map(
@@ -16,22 +16,21 @@ const digit = map(
 
 const atom = map(trimWhitespace(regexp(/\w+/)), Atom)
 
-let expr: Parser<Expr>;
-
 const list = lazy(() => {
   if (!expr) throw new Error('Failed :(')
   return map(surroundedBy(
-    token("("),
+    token('('),
     many(
       trimWhitespace(
-        expr,
-      ),
+        expr
+      )
     ),
-    token(")")
+    token(')')
   ), ls => List(...ls))
 })
 
+let expr: Parser<Expr>
 expr = trimWhitespace(
-  alt(digit, atom, list),
+  alt(digit, atom, list)
 )
 export const parse = expr

@@ -1,5 +1,5 @@
 import { Num, List, Atom } from './expr'
-import { evaluate } from './evaluate'
+import { evaluate } from './evaluate'
 
 test('simple addition', () => {
   expect(
