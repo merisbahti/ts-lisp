@@ -1,7 +1,3 @@
-import * as Types from './types'
-import * as E from './expr'
-import { Val, Result } from './result'
-
 type ParseResult<T> = OK<T> | Fail;
 type OK<T> = { ok: true; value: T; rest: string };
 type Fail = { ok: false; expected: string; actual: string };
@@ -73,16 +69,29 @@ export const alt = <A>(...alts: Array<Parser<A>>): Parser<A> => (
 export const lazy = <A>(getParser: () => Parser<A>) => (input: string) =>
   getParser()(input)
 
+export const precededBy = <A, B>(left: Parser<A>, right: Parser<B>) => (input: string) => {
+  const pleft = left(input)
+  if (!pleft.ok) return pleft
+  const pright = right(pleft.rest)
+  return pright
+}
+
+export const followedBy = <A, B>(left: Parser<A>, right: Parser<B>) => (input: string) => {
+  const pleft = left(input)
+  if (!pleft.ok) return pleft
+  const pright = right(pleft.rest)
+  if (!pright.ok) return pright
+  return pOK(pleft.value, pright.rest)
+}
+
 export const surroundedBy = <A, B>(
   left: Parser<A>,
   mid: Parser<B>,
   right: Parser<A>
 ) => (input: string) => {
-    const pleft = left(input)
-    if (!pleft.ok) return pleft
-    const pmiddle = mid(pleft.rest)
-    if (!pmiddle.ok) return pmiddle
-    const pright = right(pmiddle.rest)
-    if (!pright.ok) return pright
-    return pOK(pmiddle.value, pright.rest)
+    const first = precededBy(left, mid)(input)
+    if (!first.ok) return first
+    const rest = right(first.rest)
+    if (!rest.ok) return rest
+    return pOK(first.value, rest.rest)
   }
