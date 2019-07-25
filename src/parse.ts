@@ -1,9 +1,10 @@
 import { Parser, lazy, surroundedBy, many, alt, map, token, regexp } from './parserCombinator'
 import { Atom, List, Num } from './expr'
 import { Expr } from './types'
+type ExprParser = Parser<string, Expr>
 
 const ws = regexp(/[\s|\t]*/)
-const trimWhitespace = <A>(parser: Parser<A>) => surroundedBy(
+const trimWhitespace = <A>(parser: Parser<string, A>) => surroundedBy(
   ws,
   parser,
   ws
@@ -29,8 +30,7 @@ const list = lazy(() => {
   ), ls => List(...ls))
 })
 
-let expr: Parser<Expr>
-expr = trimWhitespace(
-  alt(digit, atom, list)
+const expr: ExprParser = trimWhitespace(
+  alt('digit, atom, list')(digit, atom, list)
 )
 export const parse = expr

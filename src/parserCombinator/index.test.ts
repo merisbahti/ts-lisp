@@ -1,6 +1,6 @@
-import { Parser, lazy, surroundedBy, many, alt, map, token, regexp, pOK, pFail } from './parserCombinator'
-import { List, Num } from './expr'
-import { Expr } from './types'
+import { Parser, lazy, surroundedBy, many, alt, map, token, regexp, pOK, pFail } from '.'
+import { List, Num } from '../expr'
+import { Expr } from '../types'
 
 test('parse token', () => {
   expect(token('5')('5')).toStrictEqual(pOK('5', ''))
@@ -24,13 +24,13 @@ test('map', () => {
 
 test('alt', () => {
   expect(
-    alt(
+    alt('digit or hello')(
       regexp(/\d/),
       token('hello')
     )('5')
   ).toStrictEqual(pOK('5', ''))
   expect(
-    alt(
+    alt('digit or hello')(
       regexp(/\d/),
       token('hello')
     )('hello')
@@ -39,7 +39,7 @@ test('alt', () => {
 
 test('alt', () => {
   const parser = many(
-    alt(
+    alt('digit or hello')(
       regexp(/\d/),
       token('hello')
     )
@@ -81,7 +81,7 @@ test('nested list', () => {
     regexp(/\d+/),
     regexp(/\s*/)
   ), x => Num(Number(x)))
-  let expr: Parser<Expr>
+  let expr: Parser<string, Expr>
   const list = lazy(() => {
     if (!expr) throw new Error('Failed :(')
     return map(surroundedBy(
@@ -96,7 +96,7 @@ test('nested list', () => {
       token(')')
     ), ls => List(...ls))
   })
-  expr = alt(digit, list)
+  expr = alt('digit or list')(digit, list)
 
   expect(list('((1))')).toStrictEqual(pOK(List(List(Num(1))), ''))
   expect(list('((1 2))')).toStrictEqual(pOK(List(List(Num(1), Num(2))), ''))
